@@ -8,7 +8,6 @@ M.new = function(def)
     name = { def.name, "string" },
     display_name = { def.display_name, "string" },
     description = { def.description, "string" },
-    category = { def.category, "string" },
   })
   ---@type Mark.Skill
   return {
