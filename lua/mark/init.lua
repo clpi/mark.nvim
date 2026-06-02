@@ -8,7 +8,10 @@ M.setup = function(opts)
 
   local config = require("mark.config").options
 
-  vim.fn.mkdir(config.skills_dir, "p")
+  local ok = pcall(vim.fn.mkdir, config.skills_dir, "p")
+  if not ok then
+    vim.notify("[mark.nvim] Failed to create skills directory: " .. config.skills_dir, vim.log.levels.ERROR)
+  end
 
   require("mark.skills").init()
 
