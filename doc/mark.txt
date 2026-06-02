@@ -1,0 +1,389 @@
+================================================================================
+INTRODUCTION                                                             *mark*
+
+mark.nvim is an AI skills manager for Neovim. It provides a Mason-style
+floating browser UI to discover, install, and manage reusable AI instruction
+packages ("skills") that integrate with popular AI coding plugins.
+
+Links:
+- Repository: https://github.com/clpi/mark.nvim
+- License (MIT): https://github.com/clpi/mark.nvim/blob/main/LICENSE
+
+Table of contents:
+
+1. FEATURES: What mark.nvim provides.                       |mark-features|
+2. REQUIREMENTS: Plugin dependencies.                   |mark-requirements|
+3. INSTALLATION: How to install.                        |mark-installation|
+4. CONFIGURATION: Options and defaults.                       |mark-config|
+5. COMMANDS: User commands.                                 |mark-commands|
+6. BROWSER: Skills browser UI.                              |mark-browser|
+7. SKILLS: Built-in skill categories.                        |mark-skills|
+8. CUSTOM SKILLS: User-defined skills.                |mark-custom-skills|
+9. API: Lua API reference.                                       |mark-api|
+10. INTEGRATIONS: AI plugin integrations.            |mark-integrations|
+11. HEALTH: Health check.                                   |mark-health|
+
+================================================================================
+FEATURES                                                        *mark-features*
+
+Mason-style Skills Browser: ~
+
+  A floating window UI inspired by mason.nvim for browsing, searching,
+  installing, and managing AI skills. Includes category navigation, search
+  filtering, detail views, and keyboard-driven interaction.
+
+Built-in Skill Library: ~
+
+  Over 20 curated skills spanning coding, review, testing, documentation,
+  refactoring, debugging, DevOps, architecture, security, and general tasks.
+  Each skill provides a tuned system prompt for AI assistants.
+
+AI Plugin Integrations: ~
+
+  Deep integrations with the Neovim AI ecosystem:
+  - mcphub.nvim: registers as a native MCP server with tools and resources
+  - CopilotChat.nvim: injects skills as custom prompts
+  - CodeCompanion.nvim: provides slash commands and extensions
+  - Avante.nvim: system prompt augmentation
+  - VectorCode: skill-aware context for code retrieval
+  - sidekick.nvim: prompt library entries
+
+User-Defined Skills: ~
+
+  Create custom skills by dropping Lua files in your skills directory.
+  Skills are automatically discovered and available in the browser.
+
+Persistent State: ~
+
+  Installed skills are saved across sessions. The install state is stored
+  as a JSON file in the skills directory.
+
+================================================================================
+REQUIREMENTS                                                *mark-requirements*
+
+- Neovim >= 0.11
+- One or more AI plugins (optional but recommended):
+  - mcphub.nvim (https://github.com/ravitemer/mcphub.nvim)
+  - CopilotChat.nvim (https://github.com/CopilotC-Nvim/CopilotChat.nvim)
+  - CodeCompanion.nvim (https://github.com/olimorris/codecompanion.nvim)
+  - Avante.nvim (https://github.com/yetone/avante.nvim)
+  - VectorCode (https://github.com/Davidyz/VectorCode)
+  - sidekick.nvim (https://github.com/folke/sidekick.nvim)
+
+================================================================================
+INSTALLATION                                                *mark-installation*
+
+Using lazy.nvim: ~
+
+>lua
+  {
+    "clpi/mark.nvim",
+    lazy = false,
+    opts = {},
+    keys = {
+      { "<leader>sm", "<cmd>Mark toggle<cr>", desc = "Toggle Skills Manager" },
+    },
+  }
+<
+
+================================================================================
+CONFIGURATION                                                     *mark-config*
+
+mark.setup({opts}) ~
+
+The `mark.setup()` function configures the plugin. All options have sensible
+defaults. Call it with an empty table to use defaults:
+
+>lua
+  require("mark").setup({})
+<
+
+Available options: ~
+
+>lua
+  {
+    skills_dir = vim.fn.stdpath("data") .. "/mark/skills",
+    auto_detect = true,       -- Auto-detect AI plugins
+    default_skills = {},      -- Skills to install on first run
+    ui = {
+      border = "rounded",
+      width = 0.8,
+      height = 0.75,
+      icons = {
+        installed = "●",
+        not_installed = "○",
+        pending = "◍",
+      },
+      keymaps = {
+        toggle_help = "g?",
+        install = "i",
+        uninstall = "x",
+        update = "u",
+        close = "q",
+        next_category = "]c",
+        prev_category = "[c",
+        search = "/",
+      },
+    },
+    integrations = {
+      mcphub = { enabled = true },
+      copilot_chat = { enabled = true },
+      codecompanion = { enabled = true },
+      avante = { enabled = true },
+      vectorcode = { enabled = true },
+      sidekick = { enabled = true },
+    },
+  }
+<
+
+================================================================================
+COMMANDS                                                        *mark-commands*
+
+:Mark [subcommand] [args] ~
+
+Execute a mark.nvim subcommand. Without arguments, toggles the browser.
+
+  `toggle`       Toggle the skills browser (default)
+  `open`         Open the skills browser
+  `close`        Close the skills browser
+  `install`      Install a skill: `:Mark install code-review`
+  `uninstall`    Uninstall a skill: `:Mark uninstall code-review`
+  `list`         List all available skills
+  `installed`    List currently installed skills
+
+:checkhealth mark ~
+
+  Run health checks. See |mark-health|.
+
+================================================================================
+BROWSER                                                          *mark-browser*
+
+The skills browser is a floating window showing all available skills grouped
+by category. It supports the following keymaps:
+
+  `i`          Install the skill under cursor
+  `x`          Uninstall the skill under cursor
+  `u`          Update the skill under cursor
+  `/`          Search / filter skills by name, description, or tags
+  `<Esc>`      Clear search filter, close help, or close window
+  `<CR>`       Show detailed information about the skill under cursor
+  `1`          Show all skills
+  `2`          Show installed skills only
+  `3`          Show available (not installed) skills only
+  `]c`         Jump to next category header
+  `[c`         Jump to previous category header
+  `g?`         Toggle keyboard shortcuts help overlay
+  `q`          Close the browser window
+
+The browser header shows the count of installed vs total skills. Skills are
+displayed with status icons:
+
+  `●`  Installed
+  `○`  Not installed
+
+================================================================================
+SKILLS                                                            *mark-skills*
+
+Built-in skills are organized into categories:
+
+Coding: ~
+  `code-generation`         Generate clean, idiomatic code
+  `design-patterns`         Apply design patterns
+  `api-design`              Design clean APIs
+
+Review: ~
+  `code-review`             Thorough code review
+  `pr-review`               Pull request review
+
+Testing: ~
+  `test-generation`         Generate test suites
+  `test-strategy`           Plan testing strategies
+
+Documentation: ~
+  `doc-generation`          Generate documentation
+  `code-comments`           Add meaningful comments
+
+Refactoring: ~
+  `refactor`                Code refactoring
+  `performance-optimization` Performance optimization
+
+Debugging: ~
+  `bug-analysis`            Systematic bug analysis
+  `error-handling`          Error handling design
+
+DevOps: ~
+  `ci-cd`                   CI/CD pipeline design
+  `docker`                  Docker & containers
+
+Architecture: ~
+  `system-design`           System architecture design
+  `database-design`         Database schema design
+
+Security: ~
+  `security-review`         Security vulnerability review
+  `auth-patterns`           Authentication patterns
+
+General: ~
+  `explain-code`            Code explanations
+  `git-workflow`            Git best practices
+  `neovim-plugin`           Neovim plugin development
+
+================================================================================
+CUSTOM SKILLS                                              *mark-custom-skills*
+
+Create custom skills by placing `.lua` files in your skills directory
+(default: `~/.local/share/nvim/mark/skills/`).
+
+Each file should return a table: ~
+
+>lua
+  return {
+    name = "my-skill",           -- Unique identifier
+    display_name = "My Skill",   -- Human-readable name
+    description = "Short desc",  -- One-line description
+    category = "coding",         -- Category (see |mark-skills|)
+    tags = { "custom" },         -- Searchable tags
+    author = "me",               -- Author name
+    version = "1.0.0",           -- Version string
+    system_prompt = "...",       -- System prompt for AI assistants
+  }
+<
+
+Optional fields: ~
+
+  `long_description`    Extended description shown in detail view
+  `instruction`         User-facing instruction text
+  `context_template`    Template for VectorCode context injection
+  `integrations`        Per-integration config overrides
+
+================================================================================
+API                                                                  *mark-api*
+
+                                                                 *mark.setup()*
+mark.setup({opts}) ~
+  Configure and initialize the plugin. See |mark-config|.
+
+                                                                  *mark.open()*
+mark.open() ~
+  Open the skills browser floating window.
+
+                                                                 *mark.close()*
+mark.close() ~
+  Close the skills browser.
+
+                                                                *mark.toggle()*
+mark.toggle() ~
+  Toggle the skills browser open/closed.
+
+                                                               *mark.install()*
+mark.install({name}) ~
+  Install a skill by its name identifier.
+  Returns: boolean (success)
+
+                                                             *mark.uninstall()*
+mark.uninstall({name}) ~
+  Uninstall a skill by its name identifier.
+  Returns: boolean (success)
+
+                                                             *mark.get_skill()*
+mark.get_skill({name}) ~
+  Get a skill's full information by name.
+  Returns: Mark.Skill|nil
+
+                                                           *mark.list_skills()*
+mark.list_skills() ~
+  List all known skills (builtin + user-defined).
+  Returns: Mark.Skill[]
+
+                                                         *mark.get_installed()*
+mark.get_installed() ~
+  List only installed skills.
+  Returns: Mark.Skill[]
+
+                                                             *mark.add_skill()*
+mark.add_skill({def}) ~
+  Add a new skill at runtime from a definition table.
+  Returns: boolean (success)
+
+                                                       *mark.get_system_prompt()*
+mark.get_system_prompt() ~
+  Get the combined system prompt from all installed skills.
+  Returns: string
+
+                                                           *mark.integration()*
+mark.integration({name}) ~
+  Access the integration module for a specific AI plugin.
+  Valid names: "mcphub", "copilot_chat", "codecompanion", "avante",
+  "vectorcode", "sidekick"
+  Returns: table|nil
+
+================================================================================
+INTEGRATIONS                                                *mark-integrations*
+
+mcphub.nvim: ~
+
+  mark.nvim registers as a native MCP server called "mark-skills". Each
+  installed skill becomes an MCP tool. A resource listing installed skills
+  is also provided. Integration is automatic when mcphub.nvim is detected.
+
+CopilotChat.nvim: ~
+
+  Installed skills are registered as CopilotChat prompts, prefixed with
+  "Mark" (e.g., "MarkCodeReview"). Each prompt uses the skill's system
+  prompt and description.
+
+CodeCompanion.nvim: ~
+
+  Skills are registered as slash commands (e.g., `/mark_code_review`).
+  An extension module is also available for deeper integration:
+
+  >lua
+    require("codecompanion").setup({
+      extensions = {
+        mark = {
+          enabled = true,
+        },
+      },
+    })
+  <
+
+Avante.nvim: ~
+
+  Access skills as system prompt augmentation:
+
+  >lua
+    local avante = require("mark").integration("avante")
+    local prompt = avante.get_system_prompt()
+  <
+
+VectorCode: ~
+
+  Augment code retrieval queries with skill context:
+
+  >lua
+    local vc = require("mark").integration("vectorcode")
+    local enhanced = vc.augment_query("find auth logic")
+  <
+
+sidekick.nvim: ~
+
+  Get skills as sidekick-compatible prompt library entries:
+
+  >lua
+    local sk = require("mark").integration("sidekick")
+    local prompts = sk.get_prompts()
+  <
+
+================================================================================
+HEALTH                                                            *mark-health*
+
+Run `:checkhealth mark` to verify your setup. Checks include:
+
+- Neovim version (>= 0.11 required)
+- Configuration validity
+- Skills directory existence
+- Skill count (total and installed)
+- Detected AI plugin integrations
+
+================================================================================
+vim:tw=78:ts=8:ft=help:norl:
