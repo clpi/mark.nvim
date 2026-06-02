@@ -44,11 +44,17 @@ end
 M.save_installed = function(dir, installed_names)
   vim.fn.mkdir(dir, "p")
   local path = dir .. "/installed.json"
-  local data = vim.json.encode(installed_names)
+  local ok, data = pcall(vim.json.encode, installed_names)
+  if not ok then
+    vim.notify("[mark.nvim] Failed to encode installed skills", vim.log.levels.ERROR)
+    return
+  end
   local fd = io.open(path, "w")
   if fd then
     fd:write(data)
     fd:close()
+  else
+    vim.notify("[mark.nvim] Failed to write installed.json", vim.log.levels.ERROR)
   end
 end
 
