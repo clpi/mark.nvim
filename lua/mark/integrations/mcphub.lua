@@ -42,9 +42,10 @@ M._register_tools = function(mcphub)
   local skills = require("mark.skills").installed()
   for _, skill in ipairs(skills) do
     if skill.system_prompt then
+      local current_skill = skill
       pcall(mcphub.add_tool, "mark-skills", {
-        name = "mark_skill_" .. skill.name:gsub("-", "_"),
-        description = skill.display_name .. ": " .. skill.description,
+        name = "mark_skill_" .. current_skill.name:gsub("-", "_"),
+        description = current_skill.display_name .. ": " .. current_skill.description,
         inputSchema = {
           type = "object",
           properties = {
@@ -53,7 +54,7 @@ M._register_tools = function(mcphub)
           required = { "query" },
         },
         handler = function(params)
-          local prompt = skill.system_prompt .. "\n\nUser: " .. (params.query or "")
+          local prompt = current_skill.system_prompt .. "\n\nUser: " .. (params.query or "")
           return { content = { { type = "text", text = prompt } } }
         end,
       })
