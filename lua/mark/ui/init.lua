@@ -64,7 +64,10 @@ M._skill_at_cursor = function()
   if not M._skill_map or not window.is_open() then
     return nil
   end
-  local cursor = vim.api.nvim_win_get_cursor(window.winid)
+  local ok, cursor = pcall(vim.api.nvim_win_get_cursor, window.winid)
+  if not ok then
+    return nil
+  end
   local line = cursor[1] - 1
   return M._skill_map[line]
 end
