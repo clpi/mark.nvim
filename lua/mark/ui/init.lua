@@ -250,10 +250,10 @@ M._show_details = function(name)
   })
 
   vim.keymap.set("n", "q", function()
-    vim.api.nvim_win_close(win, true)
+    pcall(vim.api.nvim_win_close, win, true)
   end, { buffer = buf, nowait = true })
   vim.keymap.set("n", "<Esc>", function()
-    vim.api.nvim_win_close(win, true)
+    pcall(vim.api.nvim_win_close, win, true)
   end, { buffer = buf, nowait = true })
 end
 
