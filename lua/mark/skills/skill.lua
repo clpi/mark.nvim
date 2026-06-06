@@ -26,6 +26,7 @@ M.new = function(def)
     integrations = def.integrations or nil,
     source = def.source or "builtin",
     installed = def.installed or false,
+    pending_update = nil,
   }
 end
 

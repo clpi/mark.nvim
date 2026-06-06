@@ -64,6 +64,12 @@ M.list_skills = function()
   return require("mark.skills").list()
 end
 
+---List skills with pending updates
+---@return Mark.Skill[]
+M.list_updatable = function()
+  return require("mark.skills").list_updatable()
+end
+
 ---Get all installed skills
 ---@return Mark.Skill[]
 M.get_installed = function()
@@ -83,11 +89,30 @@ M.get_system_prompt = function()
   return require("mark.skills").get_combined_prompt()
 end
 
+---Update a skill to its latest version
+---@param name string
+---@return boolean
+M.update = function(name)
+  return require("mark.skills").update(name)
+end
+
 ---Get the integration module for a specific AI plugin
 ---@param name string Integration name (mcphub, copilot_chat, codecompanion, avante, vectorcode, sidekick)
 ---@return table|nil
 M.integration = function(name)
   return require("mark.integrations").get(name)
+end
+
+---Refresh remote registries (async) and reload all skills
+---@param callback? fun(success: boolean)
+M.refresh = function(callback)
+  require("mark.skills").refresh(callback)
+end
+
+---List configured remote registries
+---@return Mark.RemoteRegistryDefinition[]
+M.registries = function()
+  return require("mark.skills.remote").list_registries()
 end
 
 return M

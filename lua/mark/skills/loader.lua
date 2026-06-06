@@ -74,6 +74,7 @@ M.load_installed = function(dir)
   fd:close()
   local ok, names = pcall(vim.json.decode, content)
   if not ok or type(names) ~= "table" then
+    vim.notify("[mark.nvim] Corrupted installed.json, resetting install state", vim.log.levels.WARN)
     return {}
   end
   return names

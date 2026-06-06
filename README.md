@@ -23,7 +23,7 @@ Skills are curated prompt/instruction bundles that teach AI assistants *how* to 
 ### Key Features
 
 - **Mason-style browsing UI** — floating window with categories, search/filter, install/uninstall
-- **20+ built-in skills** spanning coding, review, testing, documentation, debugging, devops, architecture, security
+- **37 built-in skills** spanning coding, review, testing, documentation, debugging, devops, architecture, security
 - **Deep integrations** with the Neovim AI plugin ecosystem:
   - [mcphub.nvim](https://github.com/ravitemer/mcphub.nvim) — registers as a native MCP server
   - [CopilotChat.nvim](https://github.com/CopilotC-Nvim/CopilotChat.nvim) — injects skills as custom prompts
@@ -31,6 +31,7 @@ Skills are curated prompt/instruction bundles that teach AI assistants *how* to 
   - [Avante.nvim](https://github.com/yetone/avante.nvim) — system prompt augmentation
   - [VectorCode](https://github.com/Davidyz/VectorCode) — skill-aware code retrieval context
   - [sidekick.nvim](https://github.com/folke/sidekick.nvim) — prompt library entries
+- **Remote skill registries** — fetch skills from remote registries with local caching
 - **User-defined skills** — drop `.lua` files in your skills directory
 - **Persistent state** — installed skills are saved across sessions
 - **Health checks** — `:checkhealth mark` validates config, skills, and detected integrations
@@ -124,8 +125,10 @@ require("mark").setup({
 | `:Mark close` | Close the skills browser |
 | `:Mark install <name>` | Install a skill by name |
 | `:Mark uninstall <name>` | Uninstall a skill by name |
+| `:Mark update <name>` | Update a skill (or list updatable skills) |
 | `:Mark list` | List all available skills |
 | `:Mark installed` | List installed skills |
+| `:Mark refresh` | Refresh remote skill registries |
 
 ### Browser Keymaps
 
@@ -133,29 +136,95 @@ require("mark").setup({
 | --- | --- |
 | `i` | Install skill under cursor |
 | `x` | Uninstall skill under cursor |
-| `u` | Update skill under cursor |
+| `u` | Update skill under cursor (if available) |
 | `/` | Search / filter skills |
 | `<Esc>` | Clear filter or close |
 | `<CR>` | Show skill details |
+| `r` | Refresh remote registries |
+| `s` | Cycle sort mode (group / alpha / status) |
+| `c` / `C` | Cycle / clear category filter |
 | `1` / `2` / `3` | View: All / Installed / Available |
 | `]c` / `[c` | Jump to next / previous category |
 | `g?` | Toggle keyboard shortcuts help |
 | `q` | Close the browser |
 
-### Skill Categories
+### Skill Categories (37 total)
 
-| Category | Description |
+| Category | Skills |
 | --- | --- |
-| Coding | Code generation, design patterns, API design |
-| Review | Code review, PR review |
-| Testing | Test generation, test strategy |
-| Documentation | Doc generation, code comments |
-| Refactoring | Code refactoring, performance optimization |
-| Debugging | Bug analysis, error handling |
-| DevOps | CI/CD, Docker & containers |
-| Architecture | System design, database design |
-| Security | Security review, auth patterns |
-| General | Code explanation, Git workflows, Neovim plugin dev |
+| Coding | Code generation, design patterns, API design, Python, TypeScript, concurrency, data processing |
+| Review | Code review, PR review, dependency review |
+| Testing | Test generation, test strategy, property-based testing |
+| Documentation | Doc generation, code comments, API reference docs |
+| Refactoring | Code refactoring, performance optimization, code migration |
+| Debugging | Bug analysis, error handling, performance profiling |
+| DevOps | CI/CD, Docker, Kubernetes, observability |
+| Architecture | System design, database design, event-driven architecture, caching |
+| Security | Security review, auth patterns, secret management |
+| General | Code explanation, Git workflows, Neovim plugin dev, SQL |
+
+## Remote Skill Registry
+
+mark.nvim supports fetching skills from remote registries. A default community registry is configured, providing additional skills beyond the built-in set.
+
+### Usage
+
+Press `r` in the skills browser or run:
+
+```bash
+:Mark refresh
+```
+
+Skills are cached locally so they work offline. Browse, install, and manage remote skills just like built-in ones — they'll show a cloud icon () to indicate their remote origin.
+
+### Configuration
+
+You can configure registries in your setup:
+
+```lua
+require("mark").setup({
+  registries = {
+    {
+      name = "community",
+      url = "https://raw.githubusercontent.com/clpi/mark.nvim-registry/main/registry.json",
+      enabled = true,
+      cache_ttl = 3600,        -- 1 hour cache
+    },
+    -- Add your own registries:
+    -- {
+    --   name = "my-org",
+    --   url = "https://example.com/my-registry.json",
+    --   enabled = true,
+    -- },
+  },
+  registry_cache_dir = vim.fn.stdpath("cache") .. "/mark/registries",
+  registry_cache_ttl = 3600,   -- Global default TTL
+})
+```
+
+### Registry Format
+
+Remote registries are JSON files with the following structure:
+
+```json
+{
+  "version": 1,
+  "name": "Community Skills",
+  "description": "Community-contributed AI skills",
+  "skills": [
+    {
+      "name": "my-skill",
+      "display_name": "My Skill",
+      "description": "Description of the skill",
+      "category": "coding",
+      "tags": ["custom"],
+      "author": "contributor",
+      "version": "1.0.0",
+      "system_prompt": "You are an expert at..."
+    }
+  ]
+}
+```
 
 ## Creating Custom Skills
 
@@ -195,11 +264,17 @@ mark.toggle()                       -- Toggle skills browser
 -- Skill management
 mark.install("code-review")         -- Install a skill
 mark.uninstall("code-review")       -- Uninstall a skill
+mark.update("code-review")          -- Update a skill from remote
 mark.get_skill("code-review")       -- Get skill info
 mark.list_skills()                  -- List all skills
+mark.list_updatable()               -- List skills with updates
 mark.get_installed()                -- List installed skills
 mark.add_skill({ ... })             -- Add a skill at runtime
 mark.get_system_prompt()            -- Combined prompt for all installed skills
+
+-- Remote registry
+mark.refresh(callback)              -- Refresh remote registries (async)
+mark.registries()                   -- List configured registries
 
 -- Integration access
 mark.integration("mcphub")          -- Get mcphub integration module

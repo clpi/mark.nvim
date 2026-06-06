@@ -8,6 +8,7 @@ packages ("skills") that integrate with popular AI coding plugins.
 Links:
 - Repository: https://github.com/clpi/mark.nvim
 - License (MIT): https://github.com/clpi/mark.nvim/blob/main/LICENSE
+- Remote Registry: https://github.com/clpi/mark.nvim-registry
 
 Table of contents:
 
@@ -34,7 +35,7 @@ Mason-style Skills Browser: ~
 
 Built-in Skill Library: ~
 
-  Over 20 curated skills spanning coding, review, testing, documentation,
+  Over 35 curated skills spanning coding, review, testing, documentation,
   refactoring, debugging, DevOps, architecture, security, and general tasks.
   Each skill provides a tuned system prompt for AI assistants.
 
@@ -47,6 +48,15 @@ AI Plugin Integrations: ~
   - Avante.nvim: system prompt augmentation
   - VectorCode: skill-aware context for code retrieval
   - sidekick.nvim: prompt library entries
+
+Remote Skill Registry: ~
+
+  Skills can be fetched from remote registries. A default community registry
+  is configured out of the box. Use `r` in the browser or `:Mark refresh` to
+  fetch the latest skills. Skills are cached locally and work offline.
+
+  Remote skills are shown with a cloud icon () next to their description.
+  Built-in skills have no icon, and user-defined skills show a user icon (󰠠).
 
 User-Defined Skills: ~
 
@@ -105,6 +115,16 @@ Available options: ~
     skills_dir = vim.fn.stdpath("data") .. "/mark/skills",
     auto_detect = true,       -- Auto-detect AI plugins
     default_skills = {},      -- Skills to install on first run
+    registries = {
+      {
+        name = "community",
+        url = "https://raw.githubusercontent.com/anomalyco/mark-registry/main/registry.json",
+        enabled = true,
+        cache_ttl = nil,        -- Per-registry TTL override (seconds, nil = use default)
+      },
+    },
+    registry_cache_dir = vim.fn.stdpath("cache") .. "/mark/registries",
+    registry_cache_ttl = 3600,  -- Default TTL for registry cache (seconds)
     ui = {
       border = "rounded",
       width = 0.8,
@@ -113,6 +133,38 @@ Available options: ~
         installed = "●",
         not_installed = "○",
         pending = "◍",
+        category = {
+          code_review = "󰅩",
+          testing = "󰙨",
+          refactoring = "󰛨",
+          documentation = "󰊿",
+          debugging = "󰃤",
+          performance = "󰥔",
+          security = "󰒃",
+          devops = "󰨓",
+          database = "󰋘",
+          frontend = "󰼄",
+          mobile = "",
+          data = "󰭹",
+          ai = "󰚩",
+          general = "󰘕",
+          architecture = "󰆍",
+          testing_advanced = "󰨗",
+          workflow = "󰄰",
+          language = "󰬈",
+          data_processing = "󰑖",
+          dependency_management = "󰏓",
+          property_testing = "󰔛",
+          api_docs = "󰯣",
+          migration = "󰚺",
+          profiling = "󰥔",
+          kubernetes = "󰅟",
+          observability = "󰅟",
+          event_driven = "󰃉",
+          caching = "󰍝",
+          secret_management = "󰛏",
+          sql = "󰌟",
+        },
       },
       keymaps = {
         toggle_help = "g?",
@@ -148,8 +200,10 @@ Execute a mark.nvim subcommand. Without arguments, toggles the browser.
   `close`        Close the skills browser
   `install`      Install a skill: `:Mark install code-review`
   `uninstall`    Uninstall a skill: `:Mark uninstall code-review`
+  `update`       Update a skill or list updatable skills: `:Mark update code-review`
   `list`         List all available skills
   `installed`    List currently installed skills
+  `refresh`      Refresh remote skill registries
 
 :checkhealth mark ~
 
@@ -163,10 +217,13 @@ by category. It supports the following keymaps:
 
   `i`          Install the skill under cursor
   `x`          Uninstall the skill under cursor
-  `u`          Update the skill under cursor
+  `u`          Update the skill under cursor (if update available)
   `/`          Search / filter skills by name, description, or tags
   `<Esc>`      Clear search filter, close help, or close window
   `<CR>`       Show detailed information about the skill under cursor
+  `s`          Cycle sort mode (category / alphabetical / status)
+  `c`          Cycle category filter
+  `C`          Clear category filter
   `1`          Show all skills
   `2`          Show installed skills only
   `3`          Show available (not installed) skills only
@@ -175,11 +232,13 @@ by category. It supports the following keymaps:
   `g?`         Toggle keyboard shortcuts help overlay
   `q`          Close the browser window
 
-The browser header shows the count of installed vs total skills. Skills are
-displayed with status icons:
+The browser header shows the count of installed vs total skills, pending
+updates, and current sort mode. Category tabs let you filter by category.
+Skills are displayed with status icons:
 
   `●`  Installed
   `○`  Not installed
+  `◍`  Update available
 
 ================================================================================
 SKILLS                                                            *mark-skills*
@@ -190,43 +249,58 @@ Coding: ~
   `code-generation`         Generate clean, idiomatic code
   `design-patterns`         Apply design patterns
   `api-design`              Design clean APIs
+  `python-dev`              Idiomatic Python development
+  `typescript-dev`          Type-safe TypeScript/JavaScript
+  `concurrency`             Concurrent and parallel programming
+  `data-processing`         Data pipelines and ETL workflows
 
 Review: ~
   `code-review`             Thorough code review
   `pr-review`               Pull request review
+  `dependency-review`       Audit dependencies for risks
 
 Testing: ~
   `test-generation`         Generate test suites
   `test-strategy`           Plan testing strategies
+  `property-based-testing`  Property-based and fuzz testing
 
 Documentation: ~
   `doc-generation`          Generate documentation
   `code-comments`           Add meaningful comments
+  `api-docs`                API reference documentation
 
 Refactoring: ~
   `refactor`                Code refactoring
   `performance-optimization` Performance optimization
+  `migration`               Code migration and modernization
 
 Debugging: ~
   `bug-analysis`            Systematic bug analysis
   `error-handling`          Error handling design
+  `profiling`               Performance profiling
 
 DevOps: ~
   `ci-cd`                   CI/CD pipeline design
   `docker`                  Docker & containers
+  `kubernetes`              Kubernetes configuration and debugging
+  `observability`           Logging, metrics, and tracing
 
 Architecture: ~
   `system-design`           System architecture design
   `database-design`         Database schema design
+  `event-driven`            Event-driven architecture
+  `caching`                 Caching strategies
 
 Security: ~
   `security-review`         Security vulnerability review
   `auth-patterns`           Authentication patterns
+  `secret-management`       Secrets and encryption management
 
 General: ~
   `explain-code`            Code explanations
   `git-workflow`            Git best practices
   `neovim-plugin`           Neovim plugin development
+  `sql`                     SQL query design and optimization
 
 ================================================================================
 CUSTOM SKILLS                                              *mark-custom-skills*
@@ -290,12 +364,22 @@ mark.get_skill({name}) ~
   Get a skill's full information by name.
   Returns: Mark.Skill|nil
 
-                                                           *mark.list_skills()*
+                                                            *mark.list_skills()*
 mark.list_skills() ~
   List all known skills (builtin + user-defined).
   Returns: Mark.Skill[]
 
-                                                         *mark.get_installed()*
+                                                         *mark.list_updatable()*
+mark.list_updatable() ~
+  List installed skills that have pending updates from remote registries.
+  Returns: Mark.Skill[]
+
+                                                              *mark.update()*
+mark.update({name}) ~
+  Update an installed skill to the latest version from its remote registry.
+  Returns: boolean (success)
+
+                                                          *mark.get_installed()*
 mark.get_installed() ~
   List only installed skills.
   Returns: Mark.Skill[]
@@ -316,6 +400,17 @@ mark.integration({name}) ~
   Valid names: "mcphub", "copilot_chat", "codecompanion", "avante",
   "vectorcode", "sidekick"
   Returns: table|nil
+
+                                                               *mark.refresh()*
+mark.refresh({callback}) ~
+  Asynchronously refresh remote registries and reload skills.
+  The callback receives a boolean indicating success.
+  Returns: nil
+
+                                                             *mark.registries()*
+mark.registries() ~
+  List configured remote registries.
+  Returns: table[]
 
 ================================================================================
 INTEGRATIONS                                                *mark-integrations*

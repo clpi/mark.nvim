@@ -19,6 +19,7 @@
 ---@field integrations? table<string, table> Per-integration config overrides
 ---@field source Mark.SkillSource Where the skill comes from
 ---@field installed boolean Whether the skill is currently installed
+---@field pending_update? Mark.Skill When set, a newer version is available from remote
 
 ---@alias Mark.SkillCategory
 ---| "coding" Code writing, generation, patterns
@@ -37,6 +38,31 @@
 ---| "user" User-defined in config or skill directory
 ---| "remote" Fetched from a remote registry
 
+---@class Mark.RemoteRegistry
+---@field name string Registry identifier
+---@field url string URL to the registry JSON file
+---@field enabled? boolean Whether this registry is active
+---@field cache_ttl? number Cache TTL in seconds (default: 3600)
+
+---@class Mark.RegistryResponse
+---@field version integer Schema version
+---@field name? string Registry display name
+---@field description? string Registry description
+---@field skills Mark.SkillDef[] List of skill definitions
+
+---@class Mark.SkillDef
+---@field name string
+---@field display_name string
+---@field description string
+---@field long_description? string
+---@field category? string
+---@field tags? string[]
+---@field author? string
+---@field version? string
+---@field system_prompt? string
+---@field instruction? string
+---@field context_template? string
+
 ---@class Mark.ToolDef
 ---@field name string Tool name
 ---@field description string Tool description
@@ -51,6 +77,9 @@
 ---@field default_skills? string[] Skills to install by default on first run
 ---@field ui? Mark.UiOptions UI configuration
 ---@field integrations? Mark.IntegrationOptions Integration settings
+---@field registries? Mark.RemoteRegistryDefinition[] Remote skill registries
+---@field registry_cache_dir? string Directory for caching remote registry data
+---@field registry_cache_ttl? number Default cache TTL in seconds
 
 ---@class Mark.DefaultOptions
 ---@field skills_dir string
@@ -58,6 +87,9 @@
 ---@field default_skills string[]
 ---@field ui Mark.UiOptions
 ---@field integrations Mark.IntegrationOptions
+---@field registries Mark.RemoteRegistryDefinition[]
+---@field registry_cache_dir string
+---@field registry_cache_ttl number
 
 ---@class Mark.Options
 ---@field skills_dir string
@@ -65,6 +97,15 @@
 ---@field default_skills string[]
 ---@field ui Mark.UiOptions
 ---@field integrations Mark.IntegrationOptions
+---@field registries Mark.RemoteRegistryDefinition[]
+---@field registry_cache_dir string
+---@field registry_cache_ttl number
+
+---@class Mark.RemoteRegistryDefinition
+---@field name string
+---@field url string
+---@field enabled? boolean
+---@field cache_ttl? number
 
 ---@class Mark.UiOptions
 ---@field border? string Border style: "none"|"single"|"double"|"rounded"|"solid"|"shadow"
@@ -117,17 +158,24 @@
 
 -- UI types -------------------------------------------------------------------
 
+---@alias Mark.View
+---| "all" All skills
+---| "installed" Installed skills only
+---| "available" Available (not installed) skills only
+
+---@alias Mark.SortMode
+---| "name" Sort alphabetically by name
+---| "status" Show installed first, then available
+---| "category" Group by category (default)
+
 ---@class Mark.UiState
 ---@field view Mark.View Current view
 ---@field search_query string Current search/filter text
 ---@field cursor_skill? string Skill name under cursor
 ---@field show_help boolean Whether help overlay is visible
 ---@field category_filter? Mark.SkillCategory Active category filter
-
----@alias Mark.View
----| "all" All skills
----| "installed" Installed skills only
----| "available" Available (not installed) skills only
+---@field sort_mode Mark.SortMode Current sort mode
+---@field highlight_matches table<integer, {[1]: integer, [2]: integer}[]> Line match positions for search highlighting
 
 -- Health types ---------------------------------------------------------------
 
@@ -141,8 +189,15 @@
 ---@field open fun() Open the skills browser
 ---@field close fun() Close the skills browser
 ---@field toggle fun() Toggle the skills browser
----@field install fun(name: string) Install a skill by name
----@field uninstall fun(name: string) Uninstall a skill by name
+---@field install fun(name: string): boolean Install a skill by name
+---@field uninstall fun(name: string): boolean Uninstall a skill by name
 ---@field get_skill fun(name: string): Mark.Skill|nil Get skill info
 ---@field list_skills fun(): Mark.Skill[] List all known skills
+---@field list_updatable fun(): Mark.Skill[] List skills with pending updates
+---@field update fun(name: string): boolean Update a skill from remote
 ---@field get_installed fun(): Mark.Skill[] List installed skills
+---@field add_skill fun(def: table): boolean Add a skill at runtime
+---@field get_system_prompt fun(): string Combined prompt for installed skills
+---@field integration fun(name: string): table|nil Get integration module
+---@field refresh fun(callback?: fun(success: boolean)): nil Refresh remote registries
+---@field registries fun(): Mark.RemoteRegistry[] List configured registries

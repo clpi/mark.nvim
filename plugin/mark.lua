@@ -43,6 +43,32 @@ local sub_cmds = {
     end
     vim.notify(table.concat(lines, "\n"), vim.log.levels.INFO)
   end,
+  update = function(args)
+    if args[1] then
+      require("mark").update(args[1])
+    else
+      local updatable = require("mark").list_updatable()
+      if #updatable == 0 then
+        vim.notify("[mark.nvim] No skills with updates available", vim.log.levels.INFO)
+      else
+        local lines = {}
+        for _, s in ipairs(updatable) do
+          table.insert(lines, "  ◍ " .. s.display_name .. " v" .. s.version .. " → v" .. s.pending_update.version)
+        end
+        vim.notify("[mark.nvim] Skills with updates:\n" .. table.concat(lines, "\n"), vim.log.levels.INFO)
+      end
+    end
+  end,
+  refresh = function()
+    vim.notify("[mark.nvim] Refreshing remote registries...", vim.log.levels.INFO)
+    require("mark").refresh(function(success)
+      if success then
+        vim.notify("[mark.nvim] Remote registries updated", vim.log.levels.INFO)
+      else
+        vim.notify("[mark.nvim] Failed to fetch remote registries (using cached)", vim.log.levels.WARN)
+      end
+    end)
+  end,
 }
 
 local sub_cmds_keys = {}
@@ -73,8 +99,9 @@ vim.api.nvim_create_user_command("Mark", main_cmd, {
   desc = "mark.nvim skills manager",
   complete = function(arg_lead, cmd_line, _)
     local parts = vim.split(cmd_line, "%s+", { trimempty = true })
-    -- Complete subcommand
-    if #parts <= 2 and not cmd_line:match("%s$") then
+    local sub = parts[2]
+    -- Complete subcommand name
+    if (#parts <= 2 and not cmd_line:match("%s$")) or not sub then
       return vim
         .iter(sub_cmds_keys)
         :filter(function(key)
@@ -82,9 +109,11 @@ vim.api.nvim_create_user_command("Mark", main_cmd, {
         end)
         :totable()
     end
-    -- Complete skill names for install/uninstall
-    local sub = parts[2]
-    if sub == "install" or sub == "uninstall" then
+    if sub == "refresh" then
+      return {}
+    end
+    -- Complete skill names for install/uninstall/update
+    if sub == "install" or sub == "uninstall" or sub == "update" then
       local skills = require("mark").list_skills()
       local last_arg = parts[#parts] or ""
       if cmd_line:match("%s$") then

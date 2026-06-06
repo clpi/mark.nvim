@@ -25,8 +25,8 @@ M.setup = function()
 end
 
 ---Notify all integrations of a skill state change
----@param action "install"|"uninstall"
----@param skill Mark.Skill
+---@param action "install"|"uninstall"|"refresh"
+---@param skill Mark.Skill|nil
 M.on_skill_change = function(action, skill)
   local opts = require("mark.config").options.integrations
   for name, mod in pairs(modules) do

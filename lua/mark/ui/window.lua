@@ -73,7 +73,7 @@ M.open = function()
     border = border,
     title = " mark.nvim — Skills Manager ",
     title_pos = "center",
-    footer = " g? help │ i install │ x uninstall │ / search │ q close ",
+    footer = " g? help │ i/x install/uninstall │ u update │ r refresh │ s sort │ / search │ q close ",
     footer_pos = "center",
   })
 

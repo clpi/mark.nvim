@@ -6,6 +6,16 @@ M.defaults = {
   skills_dir = vim.fn.stdpath("data") .. "/mark/skills",
   auto_detect = true,
   default_skills = {},
+  registries = {
+    {
+      name = "community",
+      url = "https://raw.githubusercontent.com/clpi/mark.nvim-registry/main/registry.json",
+      enabled = true,
+      cache_ttl = 3600,
+    },
+  },
+  registry_cache_dir = vim.fn.stdpath("cache") .. "/mark/registries",
+  registry_cache_ttl = 3600,
   ui = {
     border = "rounded",
     width = 0.8,

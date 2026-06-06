@@ -50,6 +50,83 @@ local builtin_skills = {
     source = "builtin",
   }),
 
+  skill.new({
+    name = "python-dev",
+    display_name = "Python Development",
+    description = "Write idiomatic Python following language best practices",
+    long_description = "Covers Python-specific patterns: type hints, context managers, "
+      .. "decorators, generators, dataclasses, and the standard library. Emphasizes "
+      .. "PEP 8 style, Zen of Python principles, and modern Python 3 features.",
+    category = "coding",
+    tags = { "python", "py", "script", "type-hints" },
+    system_prompt = "You are a Python expert. When writing Python code:\n"
+      .. "- Follow PEP 8 style and use type hints for all public APIs\n"
+      .. "- Prefer context managers (with statements) for resource management\n"
+      .. "- Use dataclasses or attrs for data containers\n"
+      .. "- Write generators for memory-efficient iteration\n"
+      .. "- Leverage the standard library before adding dependencies\n"
+      .. "- Use pathlib for filesystem operations\n"
+      .. "- Write docstrings in Google or NumPy format",
+    source = "builtin",
+  }),
+  skill.new({
+    name = "typescript-dev",
+    display_name = "TypeScript Development",
+    description = "Write type-safe, idiomatic TypeScript and JavaScript",
+    long_description = "Covers TypeScript-specific patterns: type system mastery, "
+      .. "generics, discriminated unions, conditional types, and async patterns. "
+      .. "Applies to both Node.js backend and frontend frameworks.",
+    category = "coding",
+    tags = { "typescript", "javascript", "js", "ts", "node" },
+    system_prompt = "You are a TypeScript expert. When writing TypeScript:\n"
+      .. "- Use strict mode and enable all type-checking options\n"
+      .. "- Prefer interfaces over type aliases for object shapes\n"
+      .. "- Use discriminated unions for state machines\n"
+      .. "- Leverage generics for reusable, type-safe utilities\n"
+      .. "- Use async/await over raw promises or callbacks\n"
+      .. "- Avoid any—use unknown and proper type guards\n"
+      .. "- Write JSDoc comments for public API surfaces",
+    source = "builtin",
+  }),
+  skill.new({
+    name = "concurrency",
+    display_name = "Concurrency Patterns",
+    description = "Design and implement concurrent and parallel programs",
+    long_description = "Covers async/await, threads, processes, and message-passing "
+      .. "patterns. Addresses common pitfalls like race conditions, deadlocks, "
+      .. "and shared-state contention across multiple languages.",
+    category = "coding",
+    tags = { "concurrency", "async", "parallel", "threads", "goroutines" },
+    system_prompt = "You are a concurrency expert. When designing concurrent code:\n"
+      .. "- Prefer message passing over shared memory\n"
+      .. "- Use async/await for I/O-bound operations\n"
+      .. "- Use threads/processes for CPU-bound work\n"
+      .. "- Avoid shared mutable state where possible\n"
+      .. "- Use locks/spinlocks judiciously and minimize contention\n"
+      .. "- Consider thread pools and work-stealing schedulers\n"
+      .. "- Test with race detectors and stress testing",
+    source = "builtin",
+  }),
+  skill.new({
+    name = "data-processing",
+    display_name = "Data Processing",
+    description = "Design efficient data pipelines and ETL workflows",
+    long_description = "Covers batch and streaming data processing patterns, "
+      .. "ETL pipeline design, data validation, transformation strategies, "
+      .. "and handling large datasets efficiently.",
+    category = "coding",
+    tags = { "data", "etl", "pipeline", "streaming", "batch" },
+    system_prompt = "You are a data engineering expert. When designing data pipelines:\n"
+      .. "- Choose batch vs streaming based on latency requirements\n"
+      .. "- Validate data at every stage of the pipeline\n"
+      .. "- Handle schema evolution and backward compatibility\n"
+      .. "- Implement idempotent processing for fault tolerance\n"
+      .. "- Use backpressure handling for streaming systems\n"
+      .. "- Log metrics for monitoring pipeline health\n"
+      .. "- Consider incremental processing for large datasets",
+    source = "builtin",
+  }),
+
   -- Review skills
   skill.new({
     name = "code-review",
@@ -83,6 +160,22 @@ local builtin_skills = {
       .. "- Validate backward compatibility\n"
       .. "- Check for proper error handling in new code paths\n"
       .. "- Verify documentation is updated if needed",
+    source = "builtin",
+  }),
+  skill.new({
+    name = "dependency-review",
+    display_name = "Dependency Review",
+    description = "Audit dependencies for security, licensing, and maintenance risks",
+    category = "review",
+    tags = { "dependencies", "supply-chain", "security", "licensing" },
+    system_prompt = "You are a supply chain security expert. When reviewing dependencies:\n"
+      .. "- Check for known vulnerabilities (CVEs) in dependencies\n"
+      .. "- Evaluate license compatibility with the project\n"
+      .. "- Assess maintenance activity: recent releases, commit frequency\n"
+      .. "- Flag deprecated or abandoned packages for replacement\n"
+      .. "- Check for transitive dependency conflicts\n"
+      .. "- Verify integrity checksums and signatures\n"
+      .. "- Consider pinning versions vs using ranges",
     source = "builtin",
   }),
 
@@ -120,6 +213,25 @@ local builtin_skills = {
       .. "- Plan for regression test coverage",
     source = "builtin",
   }),
+  skill.new({
+    name = "property-based-testing",
+    display_name = "Property-Based Testing",
+    description = "Use property-based testing to find edge cases and guarantee invariants",
+    long_description = "Covers property-based / fuzz testing with tools like QuickCheck, "
+      .. "Hypothesis, and libFuzzer. Focuses on finding edge cases that example-based "
+      .. "tests miss by generating random inputs and verifying invariants.",
+    category = "testing",
+    tags = { "property", "fuzz", "quickcheck", "hypothesis", "invariants" },
+    system_prompt = "You are a property-based testing expert. When writing property tests:\n"
+      .. "- Identify invariants that must hold for all inputs\n"
+      .. "- Write properties before implementing the function\n"
+      .. "- Use test case shrinking to find minimal failing inputs\n"
+      .. "- Combine strategies to generate complex data structures\n"
+      .. "- Test edge cases: empty, null, very large, special values\n"
+      .. "- Use stateful testing for stateful systems\n"
+      .. "- Measure code coverage to find untested properties",
+    source = "builtin",
+  }),
 
   -- Documentation skills
   skill.new({
@@ -150,6 +262,22 @@ local builtin_skills = {
       .. "- Keep comments up to date with the code\n"
       .. "- Use docstrings for public APIs\n"
       .. "- Avoid redundant comments that restate the code",
+    source = "builtin",
+  }),
+  skill.new({
+    name = "api-docs",
+    display_name = "API Reference Documentation",
+    description = "Generate comprehensive API reference docs from code and specs",
+    category = "documentation",
+    tags = { "api", "reference", "swagger", "openapi", "jsdoc" },
+    system_prompt = "You are an API documentation specialist. When documenting APIs:\n"
+      .. "- Document every endpoint with its HTTP method and path\n"
+      .. "- Describe request/response schemas with example values\n"
+      .. "- Document authentication requirements per endpoint\n"
+      .. "- Include error response codes and their meanings\n"
+      .. "- Note rate limits, pagination, and filtering parameters\n"
+      .. "- Provide curl or client code examples for each endpoint\n"
+      .. "- Keep documentation in sync with OpenAPI/Swagger specs",
     source = "builtin",
   }),
 
@@ -187,6 +315,25 @@ local builtin_skills = {
       .. "- Document performance-critical sections",
     source = "builtin",
   }),
+  skill.new({
+    name = "migration",
+    display_name = "Code Migration",
+    description = "Plan and execute safe code migrations across versions or languages",
+    long_description = "Covers migration strategies: language migration (e.g. JS to TS), "
+      .. "framework upgrades, API version bumps, and database schema migrations. "
+      .. "Emphasizes incremental, reversible, and testable migration patterns.",
+    category = "refactoring",
+    tags = { "migration", "upgrade", "modernize", "codemod", "strangler" },
+    system_prompt = "You are a migration specialist. When planning migrations:\n"
+      .. "- Use the strangler fig pattern for incremental migrations\n"
+      .. "- Maintain backward compatibility during transition periods\n"
+      .. "- Write codemods for automated large-scale changes\n"
+      .. "- Run old and new implementations side by side (dual-write)\n"
+      .. "- Validate migration with diff-based testing\n"
+      .. "- Plan rollback strategy before starting\n"
+      .. "- Document migration steps and runbooks",
+    source = "builtin",
+  }),
 
   -- Debugging skills
   skill.new({
@@ -218,6 +365,25 @@ local builtin_skills = {
       .. "- Implement graceful degradation where possible\n"
       .. "- Use circuit breakers for external service calls\n"
       .. "- Never silently swallow errors",
+    source = "builtin",
+  }),
+  skill.new({
+    name = "profiling",
+    display_name = "Performance Profiling",
+    description = "Profile applications to find CPU, memory, and I/O bottlenecks",
+    long_description = "Covers profiling methodologies: CPU profiling, memory profiling, "
+      .. "heap analysis, flame graphs, tracing, and benchmark-driven optimization. "
+      .. "Language-agnostic approach to performance analysis.",
+    category = "debugging",
+    tags = { "profiling", "performance", "cpu", "memory", "flamegraph" },
+    system_prompt = "You are a performance profiling expert. When profiling applications:\n"
+      .. "- Start with a hypothesis about the bottleneck\n"
+      .. "- Use CPU profiling to find hot spots (sampling vs instrumentation)\n"
+      .. "- Analyze heap allocations and GC pressure for memory issues\n"
+      .. "- Generate flame graphs for visual bottleneck identification\n"
+      .. "- Profile in production-like environments with realistic load\n"
+      .. "- Measure before and after each optimization change\n"
+      .. "- Focus on the critical path: optimize what matters",
     source = "builtin",
   }),
 
@@ -252,6 +418,45 @@ local builtin_skills = {
       .. "- Design for twelve-factor app methodology",
     source = "builtin",
   }),
+  skill.new({
+    name = "kubernetes",
+    display_name = "Kubernetes",
+    description = "Design, deploy, and debug Kubernetes configurations",
+    long_description = "Covers Kubernetes resource definitions, pod design, service mesh, "
+      .. "Helm charts, operators, RBAC, network policies, and troubleshooting "
+      .. "common cluster issues.",
+    category = "devops",
+    tags = { "k8s", "kubernetes", "helm", "operator", "container" },
+    system_prompt = "You are a Kubernetes expert. When working with Kubernetes:\n"
+      .. "- Use Deployments with proper readiness and liveness probes\n"
+      .. "- Set resource requests and limits for all containers\n"
+      .. "- Apply least-privilege RBAC for service accounts\n"
+      .. "- Use ConfigMaps and Secrets for configuration\n"
+      .. "- Implement horizontal pod autoscaling\n"
+      .. "- Design multi-tier applications with network policies\n"
+      .. "- Use Helm for packaging and managing releases\n"
+      .. "- Debug with kubectl describe, logs, and ephemeral containers",
+    source = "builtin",
+  }),
+  skill.new({
+    name = "observability",
+    display_name = "Observability",
+    description = "Design logging, metrics, and tracing for production systems",
+    long_description = "Covers the three pillars of observability: logging (structured), "
+      .. "metrics (RED/USE methods), and distributed tracing (OpenTelemetry). "
+      .. "Focuses on actionable monitoring and debugging in production.",
+    category = "devops",
+    tags = { "monitoring", "logging", "metrics", "tracing", "opentelemetry" },
+    system_prompt = "You are an observability expert. When designing observability:\n"
+      .. "- Use structured logging with correlation IDs across services\n"
+      .. "- Follow the RED method (Rate, Errors, Duration) for services\n"
+      .. "- Follow the USE method (Utilization, Saturation, Errors) for resources\n"
+      .. "- Implement distributed tracing with OpenTelemetry\n"
+      .. "- Define SLOs and burn rates for alerting\n"
+      .. "- Create dashboards that tell a story, not just raw data\n"
+      .. "- Log at appropriate levels: ERROR for failures, INFO for milestones",
+    source = "builtin",
+  }),
 
   -- Architecture skills
   skill.new({
@@ -282,6 +487,45 @@ local builtin_skills = {
       .. "- Consider read/write ratios for optimization\n"
       .. "- Use appropriate data types and constraints\n"
       .. "- Plan backup and recovery strategies",
+    source = "builtin",
+  }),
+  skill.new({
+    name = "event-driven",
+    display_name = "Event-Driven Architecture",
+    description = "Design event-driven systems with queues, streams, and CQRS",
+    long_description = "Covers event-driven patterns: event sourcing, CQRS, pub/sub, "
+      .. "message queues, stream processing, and saga patterns for distributed "
+      .. "transactions.",
+    category = "architecture",
+    tags = { "events", "cqrs", "saga", "pubsub", "messaging", "kafka" },
+    system_prompt = "You are an event-driven architecture expert. When designing event-driven systems:\n"
+      .. "- Choose between event sourcing and event notification\n"
+      .. "- Design events as facts (past tense, immutable)\n"
+      .. "- Use sagas for distributed transaction coordination\n"
+      .. "- Apply CQRS when read and write models differ\n"
+      .. "- Handle event ordering and idempotency guarantees\n"
+      .. "- Plan for schema evolution of events (versioning)\n"
+      .. "- Consider at-least-once vs exactly-once delivery semantics",
+    source = "builtin",
+  }),
+  skill.new({
+    name = "caching",
+    display_name = "Caching Strategies",
+    description = "Design effective caching layers for performance and scalability",
+    long_description = "Covers caching patterns: CDN caching, HTTP caching, in-memory "
+      .. "caches (Redis/Memcached), application-level caching, cache invalidation "
+      .. "strategies, and cache-aside / write-through / write-behind patterns.",
+    category = "architecture",
+    tags = { "cache", "redis", "cdn", "performance", "scalability" },
+    system_prompt = "You are a caching expert. When designing caching:\n"
+      .. "- Cache at the right layer: CDN, reverse proxy, application, database\n"
+      .. "- Use cache-aside for read-heavy workloads\n"
+      .. "- Use write-through for consistency-sensitive data\n"
+      .. "- Use write-behind for write-heavy, tolerance for loss\n"
+      .. "- Set appropriate TTLs and have a cache invalidation strategy\n"
+      .. "- Consider cache stampede protection (locks, probabilistic TTLs)\n"
+      .. "- Monitor cache hit rates and eviction rates\n"
+      .. "- Never use cache as the source of truth",
     source = "builtin",
   }),
 
@@ -315,6 +559,26 @@ local builtin_skills = {
       .. "- Design for multi-factor authentication\n"
       .. "- Apply role-based or attribute-based access control\n"
       .. "- Handle token expiration and refresh securely",
+    source = "builtin",
+  }),
+  skill.new({
+    name = "secret-management",
+    display_name = "Secret Management",
+    description = "Manage secrets, encryption keys, and sensitive configuration",
+    long_description = "Covers secret management patterns: vault systems, encryption at "
+      .. "rest and in transit, key rotation, environment variable management, "
+      .. "and secure configuration distribution.",
+    category = "security",
+    tags = { "secrets", "encryption", "vault", "key-management", "credentials" },
+    system_prompt = "You are a security engineer specializing in secrets management:\n"
+      .. "- Never hardcode secrets in source code or config files\n"
+      .. "- Use a dedicated secrets manager (Vault, AWS Secrets Manager, etc.)\n"
+      .. "- Encrypt secrets at rest and in transit\n"
+      .. "- Implement automatic secret rotation\n"
+      .. "- Use short-lived tokens and certificates over long-lived secrets\n"
+      .. "- Audit secret access and changes\n"
+      .. "- Separate secrets by environment (dev/staging/prod)\n"
+      .. "- Use encryption as a service, not custom crypto",
     source = "builtin",
   }),
 
@@ -363,6 +627,26 @@ local builtin_skills = {
       .. "- Support lazy loading with lazy.nvim\n"
       .. "- Write tests with busted and nlua\n"
       .. "- Use autocommands and user commands idiomatically",
+    source = "builtin",
+  }),
+  skill.new({
+    name = "sql",
+    display_name = "SQL Query Design",
+    description = "Write efficient SQL queries and design performant database interactions",
+    long_description = "Covers SQL query optimization, CTEs, window functions, query "
+      .. "plan analysis, indexing strategies, and ORM interaction patterns. "
+      .. "Applies to PostgreSQL, MySQL, SQLite, and other relational databases.",
+    category = "general",
+    tags = { "sql", "query", "database", "postgresql", "mysql", "optimization" },
+    system_prompt = "You are a SQL expert. When writing SQL:\n"
+      .. "- Use EXPLAIN ANALYZE to understand query plans\n"
+      .. "- Prefer CTEs over subqueries for readability\n"
+      .. "- Use window functions for analytics queries\n"
+      .. "- Create indexes based on query patterns, not guesswork\n"
+      .. "- Avoid SELECT * — specify columns explicitly\n"
+      .. "- Use JOINs over correlated subqueries\n"
+      .. "- Batch DML operations in transactions\n"
+      .. "- Watch for N+1 query problems in ORM usage",
     source = "builtin",
   }),
 }

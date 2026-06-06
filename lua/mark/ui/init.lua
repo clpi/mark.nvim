@@ -11,6 +11,8 @@ M.state = {
   cursor_skill = nil,
   show_help = false,
   category_filter = nil,
+  sort_mode = "category",
+  highlight_matches = {},
 }
 
 ---@type table<integer, string>|nil
@@ -36,6 +38,8 @@ M.close = function()
     cursor_skill = nil,
     show_help = false,
     category_filter = nil,
+    sort_mode = "category",
+    highlight_matches = {},
   }
   M._skill_map = nil
 end
@@ -95,7 +99,10 @@ M._setup_keymaps = function()
     update = function()
       local name = M._skill_at_cursor()
       if name then
-        vim.notify("[mark.nvim] Skill is up to date: " .. name, vim.log.levels.INFO)
+        local ok = require("mark.skills").update(name)
+        if ok then
+          M._refresh()
+        end
       end
     end,
     close = function()
@@ -114,6 +121,39 @@ M._setup_keymaps = function()
       else
         M.close()
       end
+    end,
+    toggle_sort = function()
+      local modes = { "category", "name", "status" }
+      local idx = 1
+      for i, m in ipairs(modes) do
+        if m == M.state.sort_mode then
+          idx = (i % #modes) + 1
+          break
+        end
+      end
+      M.state.sort_mode = modes[idx]
+      vim.notify("[mark.nvim] Sort: " .. modes[idx], vim.log.levels.INFO)
+      M._refresh()
+    end,
+    filter_category = function()
+      local categories = require("mark.util").categories
+      local current = M.state.category_filter
+      local idx = 1
+      if current then
+        for i, c in ipairs(categories) do
+          if c == current then
+            idx = (i % #categories) + 1
+            break
+          end
+        end
+      end
+      M.state.category_filter = categories[idx]
+      vim.notify("[mark.nvim] Filter: " .. require("mark.util").category_label(categories[idx]), vim.log.levels.INFO)
+      M._refresh()
+    end,
+    clear_filter = function()
+      M.state.category_filter = nil
+      M._refresh()
     end,
     toggle_help = function()
       M.state.show_help = not M.state.show_help
@@ -138,6 +178,18 @@ M._setup_keymaps = function()
       if name then
         M._show_details(name)
       end
+    end,
+    refresh = function()
+      require("mark.skills").refresh(function(success)
+        if window.is_open() then
+          M._refresh()
+        end
+        if success then
+          vim.notify("[mark.nvim] Remote registries updated", vim.log.levels.INFO)
+        else
+          vim.notify("[mark.nvim] Using cached registry data", vim.log.levels.WARN)
+        end
+      end)
     end,
     view_all = function()
       M.state.view = "all"
@@ -195,10 +247,19 @@ M._show_details = function(name)
     return
   end
 
+  local status_text
+  if skill.pending_update then
+    status_text = "Update available (v" .. skill.version .. " → v" .. skill.pending_update.version .. ")"
+  elseif skill.installed then
+    status_text = "Installed"
+  else
+    status_text = "Available"
+  end
+
   local lines = {
     " " .. skill.display_name,
     "",
-    " Status:   " .. (skill.installed and "Installed" or "Available"),
+    " Status:   " .. status_text,
     " Category: " .. require("mark.util").category_label(skill.category),
     " Author:   " .. skill.author,
     " Version:  " .. skill.version,
@@ -275,6 +336,7 @@ M._setup_highlights = function()
   set("MarkCategoryHeader", { link = "Statement", default = true })
   set("MarkInstalled", { fg = "#a6e3a1", default = true })
   set("MarkNotInstalled", { link = "Comment", default = true })
+  set("MarkPendingUpdate", { fg = "#f9e2af", default = true })
   set("MarkSkillName", { link = "Function", default = true })
   set("MarkSkillDescription", { link = "Comment", default = true })
   set("MarkDimmed", { link = "Comment", default = true })

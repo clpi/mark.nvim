@@ -66,4 +66,37 @@ describe("mark.nvim", function()
       assert.are.equal("double", config.ui.border)
     end)
   end)
+
+  describe("Remote registries", function()
+    it("returns empty registries when disabled", function()
+      mark.setup({ registries = {} })
+      local regs = mark.registries()
+      assert.are.same({}, regs)
+    end)
+
+    it("returns configured registries", function()
+      mark.setup({
+        registries = {
+          { name = "my-reg", url = "https://example.com/skills.json" },
+        },
+      })
+      local regs = mark.registries()
+      assert.are.equal(1, #regs)
+      assert.are.equal("my-reg", regs[1].name)
+    end)
+
+    it("refresh is callable without error", function()
+      mark.setup({ registries = {} })
+      assert.has_no_errors(function()
+        mark.refresh(function() end)
+      end)
+    end)
+
+    it("refresh with no callback does not error", function()
+      mark.setup({ registries = {} })
+      assert.has_no_errors(function()
+        mark.refresh()
+      end)
+    end)
+  end)
 end)

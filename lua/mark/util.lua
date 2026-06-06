@@ -32,6 +32,32 @@ end
 ---@param str string
 ---@param width integer
 ---@return string
+---Compare two semver strings. Returns true if v1 < v2.
+---Supports "1.0.0", "1.0", "1" formats with optional pre-release suffixes.
+---@param v1 string
+---@param v2 string
+---@return boolean
+M.version_lt = function(v1, v2)
+  local function parse(v)
+    local parts = {}
+    for num in v:gmatch("%d+") do
+      table.insert(parts, tonumber(num))
+    end
+    while #parts < 3 do
+      table.insert(parts, 0)
+    end
+    return parts
+  end
+  local a = parse(v1)
+  local b = parse(v2)
+  for i = 1, 3 do
+    if a[i] ~= b[i] then
+      return a[i] < b[i]
+    end
+  end
+  return false
+end
+
 M.pad_right = function(str, width)
   local len = vim.fn.strdisplaywidth(str)
   if len >= width then
